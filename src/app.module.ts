@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TelegrafModule } from 'nestjs-telegraf';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { BotModule } from './bot/bot.module';
 
 
@@ -16,7 +14,7 @@ import { BotModule } from './bot/bot.module';
     }),
     BotModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
