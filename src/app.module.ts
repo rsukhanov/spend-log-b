@@ -2,8 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { BotModule } from './bot/bot.module';
-import { ProcessorService } from './processor/processor.service';
-import { DbService } from './db/db.service';
+import { ProcessorService } from './bot/processor/processor.service';
+import { PrismaModule } from './prisma/prisma.module';
+import { UserService } from './db/user/user.service';
+import { ExpenseService } from './db/expense/expense.service';
+import { UserModule } from './db/user/user.module';
+import { ExpenseModule } from './db/expense/expense.module';
 
 
 @Module({
@@ -15,8 +19,11 @@ import { DbService } from './db/db.service';
       token: process.env.TELEGRAM_BOT_TOKEN || '',
     }),
     BotModule,
+    PrismaModule,
+    UserModule,
+    ExpenseModule,
   ],
   controllers: [],
-  providers: [ProcessorService, DbService],
+  providers: [ProcessorService],
 })
 export class AppModule {}
