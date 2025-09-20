@@ -18,7 +18,7 @@ export class UserService {
     if (userExists) {
       throw new Error('User already registered');
     }
-    
+
     const user = await this.prisma.user.create({
       data: {
         id: dto.userId,
@@ -29,9 +29,10 @@ export class UserService {
     return user;
   }
 
-  async deleteUser(userId: string) {
-    await this.prisma.user.delete({
+  private async deleteUser(userId: string) {
+    const deletedUser = await this.prisma.user.delete({
       where: { id: userId },
     });
+    return deletedUser;
   }
 }

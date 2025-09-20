@@ -14,10 +14,10 @@ export class BotService {
   constructor(private processor: ProcessorService, private user: UserService, private expense: ExpenseService) {}
   private message = `
   Привет👋  Я SpendLog бот для учёта расходов! Скидывай мне:\n
+  - 💬 текстовые сообщения с тратами
   - 📸 чеки (фото или pdf)
   - 📱 скриншоты из банковских приложений
-  - 💬 текстовые сообщения с тратами
-  - 🎤 голосовые сообщения с тратами
+  - 🎤 голосовые сообщения с тратами (beta, работает долго)
 
   Я постараюсь распознать информацию и сохранить её в твоём личном кабинете, посмотреть всю информацию про свои траты ты можешь в веб-приложении!
 `;
@@ -37,8 +37,7 @@ export class BotService {
       });
     } else {
       await ctx.reply(`Рад тебя видеть снова!😊 Я востановил твои прошлые траты! Посмотри их в веб-приложении!\n
-        Если желаешь начать вести учет заново, напиши /clear 
-        Если желаешь удалить все свои данные, напиши /delete`);
+        Если желаешь начать вести учет заново, напиши /clear (все прошлые траты будут удалены)\n`);
 
       }
   }
@@ -55,7 +54,7 @@ export class BotService {
     try {
       const isExistExpenses = await this.expense.isExistExpense(userId);
       if (!isExistExpenses) {
-        await ctx.reply('✅ У тебя нет прошлых трат для удаления, можно начинать вести учет!');
+        await ctx.reply('✅ У тебя нет прошлых трат для удаления, можно начинать вести новый учет!');
         return
       }
       await this.expense.clearUserExpenses(userId);
@@ -64,26 +63,7 @@ export class BotService {
       return;
     }
 
-    await ctx.reply('✅ Все твои прошлые траты удалены, можно начинать вести учет заново!');
-  }
-
-  @Command('delete')
-  async delete(@Ctx() ctx: Context) {
-    const userId = String(ctx.from?.id);
-    try {
-      await this.expense.clearUserExpenses(userId);
-      await this.user.deleteUser(userId);
-    } catch {
-      ctx.reply('⚠️ Произошла ошибка при удалении данных, попробуй еще раз позже!');
-      return;
-    }
-
-    await ctx.reply('✅ Все твои данные удалены, жаль тебя терять! Если передумаешь, просто напиши /start');
-  
-    await ctx.reply('👋 До встречи!', {
-      reply_markup: { remove_keyboard: true },
-    });
-
+    await ctx.reply('✅ Все твои прошлые траты удалены, можно начинать вести новый учет заново!');
   }
 
   @On('message')
@@ -100,22 +80,37 @@ export class BotService {
     else if ('photo' in msg) {
       const fileId = msg.photo[msg.photo.length - 1].file_id;
       const file = await ctx.telegram.getFileLink(fileId);
-      const result = await this.processor.processPhoto(file.href);
-      await ctx.reply(`📸 Обработан чек: ${JSON.stringify(result)}`);
-
+      try {
+        const result = await this.processor.processPhotoOrDoc(file.href);
+        await ctx.reply(`📄 Фото обработано: ${JSON.stringify(result)}`);
+      } catch (e) {
+        await ctx.reply(`⚠️ Ошибка при обработке фото: ${e}`);
+        return;
+      }
     } 
     else if ('document' in msg) {
       const fileId = msg.document.file_id;
       const file = await ctx.telegram.getFileLink(fileId);
-      const result = await this.processor.processPhoto(file.href);
-      await ctx.reply(`📄 Документ обработан: ${JSON.stringify(result)}`);
-
+      try {
+        const result = await this.processor.processPhotoOrDoc(file.href);
+        await ctx.reply(`📄 Документ обработан: ${JSON.stringify(result)}`);
+      } catch (e) {
+        await ctx.reply(`⚠️ Ошибка при обработке документа: ${e}`);
+        return;
+      }
     } 
     else if ('voice' in msg) {
       const file = await ctx.telegram.getFileLink(msg.voice.file_id);
-      const result = await this.processor.processVoice(file.href);
-      await ctx.reply(`🎤 Голос переведен в текст: ${JSON.stringify(result)}`);
-
+      try {
+        const result = await this.processor.processVoice(file.href);
+        if (result.error) {
+          throw new Error(result.error);
+        }
+        const text = result.text;
+        await ctx.reply(`🎤 Голос переведен в текст: ${text}`);
+      } catch (e) {
+        await ctx.reply(`⚠️ Ошибка при обработке голоса: ${e}`);
+      }
     }
   }
 }
