@@ -8,6 +8,7 @@ import { UserService } from './db/user/user.service';
 import { ExpenseService } from './db/expense/expense.service';
 import { UserModule } from './db/user/user.module';
 import { ExpenseModule } from './db/expense/expense.module';
+import { session } from 'telegraf';
 
 
 @Module({
@@ -17,6 +18,7 @@ import { ExpenseModule } from './db/expense/expense.module';
     }),
     TelegrafModule.forRoot({
       token: process.env.TELEGRAM_BOT_TOKEN || '',
+      middlewares: [session()],
     }),
     BotModule,
     PrismaModule,

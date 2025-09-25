@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { Expense } from '@prisma/client';
 import fetch from 'node-fetch';
+import { getSubCategoriesList } from 'src/general/expenses_utils';
 
 @Injectable()
 export class ProcessorService {
@@ -12,6 +14,8 @@ export class ProcessorService {
 
   private ASSEMBLY_URL = process.env.ASSEMBLY_URL!;
   private ASSEMBLY_API_KEY = process.env.ASSEMBLY_API_KEY!;
+
+  private subCategories = getSubCategoriesList()
 
   async processText(rawText: string) {
     try {
@@ -26,28 +30,43 @@ export class ProcessorService {
       "model": "x-ai/grok-4-fast:free",
       messages: [ {
         role: "system",
-        content: `You are a JSON extractor. Given a raw text from a receipt or user message, extract the following fields:
-            - amount_original (number, required) — the numeric amount found.
-            - currency_original (string, required) — currency code (UAH, PLN, USD, EUR). If ambiguous, guess.
-            - date (ISO 8601 date or null) — date of transaction if present.
-            - merchant (string or null) — merchant/store name.
-            - category (one of: Food, Transport, Entertainment, Groceries, Utilities, ComputerGames) — choose best match or "Other".
+        content: `
+          You are a JSON extractor and financial categorizer. 
+          Given a raw text from a receipt, voice note, or user message, extract structured transaction data.
 
-            Return ONLY valid JSON. Example:
-            {
-              "amount_original": 123.45,
-              "currency_original": "PLN",
-              "date": "2025-09-17",
-              "merchant": "Lidl",
-              "category": "Groceries",
-            }
-            If a field is missing, set it to null. If amount or currency cannot be determined, respond with "Cannot extract transaction data."
-            If you cannot extract any fields, respond with "Cannot extract transaction data.`,
-        },
-        {
-          role: "user",
-          content: rawText,
-        },]
+          Rules:
+          1. Always return a **valid JSON array** of objects. 
+
+          2. Each object must contain all required fields:
+            - "amount_original" (number) — numeric amount. If cannot detect, set to "to_ask".
+            - "currency_original" (string) — currency code (UAH, PLN, USD, EUR). If cannot detect, set to "to_ask".
+            - "date" (ISO 8601 string) — if no date is present, use today's: ${(new Date()).toISOString()}.
+            - "merchant" (string) — merchant/store name. If unknown, set to "unknown".
+            - "category" (string) — one of these categories ${this.subCategories}. If unknown, set to "OTHER".
+
+          3. Splitting rule:
+            - If the transaction clearly includes multiple types of expenses (e.g. groceries + household purchases), split into multiple JSON objects.
+            - Do not split off small items: if a part is less than 20% of total amount, merge it into the main category.
+            - When you use splitting rule you can not put "to_ask" to the "amount_original" and "currency_original" fields! Its important!.
+
+          4. Decision rule for uncertainty:
+            - If you cannot determine amount or currency and you are NOT splitting the expense → use "to_ask".
+            - If you cannot determine merchant, or it is irrelevant → use "to_ask".
+            - If you cannot determine category → set to "OTHER".
+            - If you are splitting the expense than you can not put "to_ask" to the "amount_original" and "currency_original" fields.
+            - Never leave fields empty.
+
+          5. If nothing at all can be extracted → return: { error: "Не могу распознать информацию! Пожалуйста предоставте более четкую и понятную информацию!"} . 
+
+          6. Do not be shy to response with { error: "Не могу распознать информацию! Пожалуйста предоставте более четкую и понятную информацию!"} if you are not sure that you have a valid data to respond!
+
+          7. If you can split the extense and there are not clear currencies for all it parts, then return { error: "Не могу распознать валюту для каждой части этой большой траты! Отправьте эти траты по одной или с более четким указанией валют!"} .
+        `,
+      },
+      {
+        role: "user",
+        content: rawText,
+      },]
       })
     });
 

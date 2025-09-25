@@ -7,38 +7,122 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum SourceType {
+enum SOURCE_TYPE {
   TEXT
   VOICE
-  RECIEPT_PHOTO
-  BANK_PHOTO
+  PHOTO
+  DOCUMENT
 }
 
 model User {
-  id        String   @id @map("_id")
+  id         String   @id @map("_id")
 
   name       String?
-  username  String?
+  username   String?
 
   expenses   Expense[]
 }
 
+
+enum EXPENSE_MAIN_CATEGORY {
+  HOUSING         // аренда, коммуналка
+  TRANSPORT       // такси, транспорт, авто
+  FOOD            // продукты, рестораны
+  HEALTH          // медицина, аптека
+  PERSONAL        // одежда, уход, личные покупки
+  ENTERTAINMENT   // досуг, игры, развлечения
+  TRAVEL          // поездки, отдых
+  FINANCIAL       // кредиты, налоги, сбережения
+  FAMILY_PETS     // дети, семья, животные
+  OTHER           // всё, что не вошло
+}
+
+enum EXPENSE_SUB_CATEGORY {
+  // HOUSING
+  RENT
+  MORTGAGE
+  UTILITIES
+  SUBSCRIPTIONS
+  INSURANCE
+  REPAIRS
+
+  // TRANSPORT
+  TAXI
+  PUBLIC_TRANSPORT
+  FUEL
+  CAR_MAINTENANCE
+  CAR_INSURANCE
+  PARKING
+
+  // FOOD
+  GROCERIES
+  DINING_OUT
+  COFFEE_SNACKS
+  FAST_FOOD
+
+  // HEALTH
+  MEDICINES
+  DOCTOR
+  PERSONAL_CARE_SERVICES
+
+  // PERSONAL
+  CLOTHING
+  COSMETICS
+  PERSONAL_SHOPPING
+  SELF_EDUCATION
+  SELF_DEVELOPMENT
+
+  // ENTERTAINMENT
+  MOVIES_CONCERTS
+  COMPUTER_GAMES
+  ALCOHOL
+  SMOKING
+  GAMBLING
+  HOBBIES
+
+  // TRAVEL
+  HOTELS
+  FLIGHTS
+  TOURS_ACTIVITIES
+  TRAVEL_RESTAURANTS
+  TRAVEL_TRANSPORT
+
+  // FINANCIAL
+  LOAN
+  TAXES
+  SAVINGS_INVESTMENTS
+  BANK_FEES
+
+  // FAMILY
+  CHILDREN
+  EDUCATION
+  HOME_PETS
+  DONATIONS_PRESENTS
+
+  // OTHER
+  FORCED_PURCHASES
+  EMOTIONAL_PURCHASES
+  OTHER
+}
+
+
 model Expense {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
 
-  date       DateTime @default(now())
+  date             DateTime @default(now())
 
-  originAmount     Float
-  originCurrency   String   @default("PLN")
+  amount_original     Float
+  currency_original   String   @default("PLN")
 
-  amountInUAH  Float
+  amount_UAH      Float?
 
-  category   String   @default("other")
+  main_category     EXPENSE_MAIN_CATEGORY
+  sub_category      EXPENSE_SUB_CATEGORY
 
-  details    Json? 
-  
-  source     SourceType
+  merchant         String
 
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  source           SOURCE_TYPE
+
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
 }
