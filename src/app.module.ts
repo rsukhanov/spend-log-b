@@ -9,6 +9,7 @@ import { ExpenseService } from './db/expense/expense.service';
 import { UserModule } from './db/user/user.module';
 import { ExpenseModule } from './db/expense/expense.module';
 import { session } from 'telegraf';
+import { WebappModule } from './webapp/webapp.module';
 
 
 @Module({
@@ -24,8 +25,9 @@ import { session } from 'telegraf';
     PrismaModule,
     UserModule,
     ExpenseModule,
+    WebappModule,
   ],
   controllers: [],
-  providers: [ProcessorService],
+  providers: [],
 })
 export class AppModule {}

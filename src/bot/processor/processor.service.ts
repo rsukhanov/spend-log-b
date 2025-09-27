@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Expense } from '@prisma/client';
 import fetch from 'node-fetch';
-import { getSubCategoriesList } from 'src/general/expenses_utils';
+import { getSubCategoriesList } from 'src/db/expense/utils/categories';
 
 @Injectable()
 export class ProcessorService {

@@ -9,6 +9,5 @@ import { ExpenseModule } from 'src/db/expense/expense.module';
 @Module({
   imports: [UserModule, ExpenseModule],
   providers: [BotService, ProcessorService],
-  exports: [BotService],
 })
 export class BotModule {}

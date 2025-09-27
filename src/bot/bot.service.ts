@@ -8,7 +8,7 @@ import { ExpenseService } from 'src/db/expense/expense.service';
 import { error } from 'console';
 import { text } from 'stream/consumers';
 import { SOURCE_TYPE } from '@prisma/client';
-import { getMainCategory } from 'src/general/expenses_utils';
+import { getMainCategory } from 'src/db/expense/utils/categories';
 import { getErrorMessage } from 'src/general/error_utils';
 import { dateToStr } from 'src/general/format_utils';
 
@@ -52,8 +52,8 @@ export class BotService {
 
     if (!isRegistered) {
       await this.user.registerUser({
-        userId,
-        name: ctx.from?.first_name,
+        id: userId,
+        first_name: ctx.from?.first_name,
         username: ctx.from?.username,
       });
     } else {

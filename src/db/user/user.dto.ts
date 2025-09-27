@@ -2,11 +2,11 @@ import { IsOptional, IsString } from "class-validator";
 
 export class RegisterUserDto {
   @IsString()
-  userId: string;
+  id: string;
 
   @IsString()
   @IsOptional()
-  name?: string;
+  first_name?: string;
   
   @IsString()
   @IsOptional()
