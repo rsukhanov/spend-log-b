@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Expense } from '@prisma/client';
+import { raw } from '@prisma/client/runtime/library';
 import fetch from 'node-fetch';
 import { getSubCategoriesList } from 'src/db/expense/utils/categories';
 
@@ -17,7 +18,28 @@ export class ProcessorService {
 
   private subCategories = getSubCategoriesList()
 
-  async processText(rawText: string) {
+  async processText(rawText: string, image_url?: string) {
+    console.log(image_url)
+    let raw_content: Array<{ type: "image_url"; image_url: { url: string } } | { type: "text"; text: string }>;
+    if (image_url) {
+       const fileResp = await fetch(image_url);
+        const buffer = await fileResp.arrayBuffer();
+        const base64Image = Buffer.from(buffer).toString('base64');
+       
+        const dataUrl = `data:image/jpeg;base64,${base64Image}`;
+
+      raw_content = [
+        {
+          type: "image_url",
+          image_url: { url: dataUrl}
+        }
+      ]
+    } else {
+      raw_content = [{
+      type: "text",
+      text: rawText
+    }];
+    }
     try {
     
     const response = await fetch(this.OPEN_ROUTERS_URL, {
@@ -32,7 +54,7 @@ export class ProcessorService {
         role: "system",
         content: `
           You are a JSON extractor and financial categorizer. 
-          Given a raw text from a receipt, voice note, or user message, extract structured transaction data.
+          Given a raw text from a receipt, voice note, user message or receipt image, extract structured transaction data.
 
           Rules:
           1. Always return a **valid JSON array** of objects. 
@@ -65,7 +87,7 @@ export class ProcessorService {
       },
       {
         role: "user",
-        content: rawText,
+        content: raw_content,
       },]
       })
     });
@@ -82,7 +104,7 @@ export class ProcessorService {
     const result = await response.json() as OpenRouterResponse;
 
     const content = result?.choices?.[0]?.message?.content;
-    
+
     try {
       if (typeof content !== "string") {
         throw new Error('Модель не вернула текст для парсинга');
@@ -111,7 +133,7 @@ export class ProcessorService {
       body: new URLSearchParams({
         base64Image: `data:image/jpeg;base64,${base64Image}`,
         language: 'eng',
-        OCREngine: '2',
+        OCREngine: '1',
       }),
     });
 

@@ -117,8 +117,8 @@ export class BotService {
     await ctx.reply(message || "⚠️ Ошибка при добавление траты. Что-то пошло не так!")
   }
 
-  private async extractJsonFromText(ctx: MyContext, text: string, source: SOURCE_TYPE){
-      const result = await this.processor.processText(text)
+  private async extractJsonFromText(ctx: MyContext, text: string, source: SOURCE_TYPE, image_url?: string) {
+      const result = await this.processor.processText(text, image_url);
       if (result.error) {
         this.cancelTransaction(ctx, `⚠️ Ошибка главного сервиса по трансформации данных! ${result.error}`);
         return;
@@ -288,15 +288,14 @@ export class BotService {
       const fileId = msg.photo[msg.photo.length - 1].file_id;
       const file = await ctx.telegram.getFileLink(fileId);
       
-      const result = await this.processor.processPhotoOrDoc(file.href);
-      if (result.error) {
-        await ctx.reply(`⚠️ Ошибка при обработке фото: ${result.error}`);
-        return;
-      }
+      // const result = await this.processor.processPhotoOrDoc(file.href);
 
-      await ctx.reply(`фото переведено в текст: ${result.text}`)
+      // if (result.error) {
+      //   await ctx.reply(`⚠️ Ошибка при обработке фото: ${result.error}`);
+      //   return;
+      // }
 
-      await this.extractJsonFromText(ctx, result.text, 'PHOTO')
+      await this.extractJsonFromText(ctx, 'img', 'PHOTO', file.href);
     } 
 
     else if ('document' in msg) {
