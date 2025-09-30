@@ -10,6 +10,7 @@ import { UserModule } from './db/user/user.module';
 import { ExpenseModule } from './db/expense/expense.module';
 import { session } from 'telegraf';
 import { WebappModule } from './webapp/webapp.module';
+import { CurrencyModule } from './db/currency/currency.module';
 
 
 @Module({
@@ -26,6 +27,7 @@ import { WebappModule } from './webapp/webapp.module';
     UserModule,
     ExpenseModule,
     WebappModule,
+    CurrencyModule,
   ],
   controllers: [],
   providers: [],

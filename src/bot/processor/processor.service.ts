@@ -19,7 +19,6 @@ export class ProcessorService {
   private subCategories = getSubCategoriesList()
 
   async processText(rawText: string, image_url?: string) {
-    console.log(image_url)
     let raw_content: Array<{ type: "image_url"; image_url: { url: string } } | { type: "text"; text: string }>;
     if (image_url) {
        const fileResp = await fetch(image_url);
@@ -82,7 +81,9 @@ export class ProcessorService {
 
           6. Do not be shy to response with { error: "Не могу распознать информацию! Пожалуйста предоставте более четкую и понятную информацию!"} if you are not sure that you have a valid data to respond!
 
-          7. If you can split the extense and there are not clear currencies for all it parts, then return { error: "Не могу распознать валюту для каждой части этой большой траты! Отправьте эти траты по одной или с более четким указанией валют!"} .
+          7. If you can split the extense and there are not clear currencies for all it parts, then return { error: "Не могу распознать валюту для каждой части этой большой траты! Отправьте эти траты по одной или с более четким указанием валют!"}.
+
+          8. Do not try to extract category from merchant only, try to understand the purchase itself!
         `,
       },
       {

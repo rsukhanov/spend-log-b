@@ -12,10 +12,6 @@ export class ExpenseDto {
   @IsNotEmpty()
   currency_original: string;
 
-  @IsNumber()
-  @IsOptional()
-  amount_UAH?: number;
-
   @IsEnum(EXPENSE_MAIN_CATEGORY)
   main_category: EXPENSE_MAIN_CATEGORY;
 

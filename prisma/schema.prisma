@@ -7,11 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum SOURCE_TYPE {
-  TEXT
-  VOICE
-  PHOTO
-  DOCUMENT
+model UAH_to_Currency {
+  cc            String  @id @map("_id")
+  rate          Float
+  updatedAt     DateTime @default(now()) @updatedAt
 }
 
 model User {
@@ -20,9 +19,17 @@ model User {
   name       String?
   username   String?
 
+  prefered_currency   String? @default("UAH")
+
   expenses   Expense[]
 }
 
+enum SOURCE_TYPE {
+  TEXT
+  VOICE
+  PHOTO
+  DOCUMENT
+}
 
 enum EXPENSE_MAIN_CATEGORY {
   HOUSING         // аренда, коммуналка
@@ -112,9 +119,7 @@ model Expense {
   date             DateTime @default(now())
 
   amount_original     Float
-  currency_original   String   @default("PLN")
-
-  amount_UAH      Float?
+  currency_original   String   
 
   main_category     EXPENSE_MAIN_CATEGORY
   sub_category      EXPENSE_SUB_CATEGORY

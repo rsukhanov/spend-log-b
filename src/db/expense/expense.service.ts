@@ -32,11 +32,6 @@ export class ExpenseService {
     return !!expense;
   }
 
-  async clearUserExpenses(userId: string){
-    await this.prisma.expense.deleteMany({
-      where: { userId },
-    });
-  }
 
   async getUserExpenses(userId: string) {
     return await this.prisma.expense.findMany({
@@ -49,5 +44,11 @@ export class ExpenseService {
     return await this.prisma.expense.delete({
       where: {id}
     })
+  }
+
+  async clearUserExpenses(userId: string){
+    await this.prisma.expense.deleteMany({
+      where: { userId },
+    });
   }
 }
