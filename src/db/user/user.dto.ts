@@ -11,4 +11,8 @@ export class RegisterUserDto {
   @IsString()
   @IsOptional()
   username?: string;
+
+  @IsString()
+  @IsOptional()
+  photo_url?: string;
 }

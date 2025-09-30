@@ -15,8 +15,17 @@ export class WebappController {
       try {
         const userData = JSON.parse(valid.data.user);
         userData.id = (userData.id).toString();
-        const user = await this.userService.findOrRegisterUser(userData);
+        const user = await this.userService.findUpdateOrRegisterUser(userData);
         return { ok: true, user };
+  // id: '689032392',
+  // name: 'Рома',
+  // username: 'rsukhanov',
+  // photo_url: 'https://t.me/i/userpic/320/RgrJRSwPtwzXVa0G0eRMrnP0VJlp05JD9YxFqo_6sRQ.svg',
+  // preferred_currency: null,
+  // first_name: 'Рома',
+  // last_name: '',
+  // language_code: 'ru',
+  // allows_write_to_pm: true
       } catch (e) {
         return { ok: false, error: (e as Error).message };
       }

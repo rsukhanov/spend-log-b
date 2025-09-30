@@ -19,7 +19,9 @@ model User {
   name       String?
   username   String?
 
-  prefered_currency   String? @default("UAH")
+  photo_url String?
+
+  preferred_currency   String? @default("UAH")
 
   expenses   Expense[]
 }

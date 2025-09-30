@@ -6,16 +6,20 @@ import { RegisterUserDto } from './user.dto';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async findOrRegisterUser(dto: RegisterUserDto) {
+  async updateUserCurrency(userId: string, currency: string) {
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: { preferred_currency: currency },
+    });
+  }
+
+  async findUpdateOrRegisterUser(dto: RegisterUserDto) {
     let user = await this.prisma.user.findUnique({ where: { id: dto.id } });
     if (!user) {
-      user = await this.prisma.user.create({
-        data: {
-          id: dto.id,
-          name: dto.first_name,
-          username: dto.username,
-        },
-      });
+      user = await this.registerUser(dto);
+    }
+    if(!Object.assign(user, dto)){
+      user = await this.updateUser(dto.id, dto);
     }
     return user;
   }
@@ -33,9 +37,18 @@ export class UserService {
         id: dto.id,
         name: dto.first_name,
         username: dto.username,
+        photo_url: dto.photo_url,
       },
     });
     return user;
+  }
+
+  async updateUser(userId: string, dto: Partial<RegisterUserDto>) {
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: dto,
+    });
+    return updatedUser;
   }
 
   private async deleteUser(userId: string) {
