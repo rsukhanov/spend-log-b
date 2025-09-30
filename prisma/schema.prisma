@@ -121,7 +121,9 @@ model Expense {
   date             DateTime @default(now())
 
   amount_original     Float
-  currency_original   String   
+  currency_original   String
+
+  amount_in_preferred_currency   Float?
 
   main_category     EXPENSE_MAIN_CATEGORY
   sub_category      EXPENSE_SUB_CATEGORY

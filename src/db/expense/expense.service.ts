@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ExpenseDto } from './utils/createExpense.dto';
+import { CurrencyService } from '../currency/currency.service';
 
 @Injectable()
 export class ExpenseService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private currency: CurrencyService) {}
 
   async createExpense(dto: ExpenseDto) {
     return await this.prisma.expense.create({
@@ -50,5 +51,35 @@ export class ExpenseService {
     await this.prisma.expense.deleteMany({
       where: { userId },
     });
+  }
+
+  async updateAllExpensesWithPreferredCurrency(userId: string, preferred_currency: string){
+    const expenses = await this.prisma.expense.findMany({
+      where: { userId },
+    });
+
+    if (!expenses || expenses.length === 0) return;
+
+    for (const expense of expenses) {
+      if (expense.currency_original === preferred_currency) {
+        await this.prisma.expense.update({
+          where: { id: expense.id },
+          data: { amount_in_preferred_currency: expense.amount_original },
+        });
+      } else {
+        
+        const convertedAmount = await this.currency.convertCurrency(
+          expense.amount_original,
+          expense.currency_original,
+          preferred_currency
+        );
+
+        await this.prisma.expense.update({
+          where: { id: expense.id },
+          data: { amount_in_preferred_currency: convertedAmount },
+        });
+      }
+    }
+
   }
 }

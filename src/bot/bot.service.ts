@@ -145,7 +145,7 @@ export class BotService {
         return
       }
       ctx.session.expense.data = data[0];
-      this.checkFieldsAndSave(ctx);
+      await this.checkFieldsAndSave(ctx);
   }
 
   private async checkFieldsAndSave(ctx: MyContext) {
