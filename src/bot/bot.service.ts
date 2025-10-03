@@ -75,7 +75,7 @@ export class BotService {
   }
 
   private async showExpenseSuccessMessage(ctx: MyContext, expenses){
-    expenses.map(async expense => {
+    expenses.map(async (expense) => {
       await ctx.reply(
 `🗓️ Дата: ${dateToStr(expense.date)}
 💰 Сумма: ${expense.amount_original}
@@ -280,7 +280,9 @@ export class BotService {
         return
       }
     }
-    await ctx.reply('Принял вашу трату, анализирую, подождите...')
+
+    await ctx.reply('Принял вашу трату, начинаю обработку...')
+
     if ('text' in msg) {
       await this.extractJsonFromText(ctx, msg.text, 'TEXT') 
     } 
@@ -302,16 +304,13 @@ export class BotService {
     else if ('document' in msg) {
       const fileId = msg.document.file_id;
       const file = await ctx.telegram.getFileLink(fileId);
-      const result = await this.processor.processPhotoOrDoc(file.href);
-      if (result.error) {
-        await ctx.reply(`⚠️ Ошибка при обработке документа: ${result.error}`);
-        return;
-      }
+      // const result = await this.processor.processPhotoOrDoc(file.href);
+      // if (result.error) {
+      //   await ctx.reply(`⚠️ Ошибка при обработке документа: ${result.error}`);
+      //   return;
+      // }
 
-      await ctx.reply(`документ переведен в текст: ${result.text}`)
-
-      await this.extractJsonFromText(ctx, result.text, 'DOCUMENT')
-    
+      await this.extractJsonFromText(ctx, 'img', 'DOCUMENT', file.href);
     } 
     else if ('voice' in msg) {
       const file = await ctx.telegram.getFileLink(msg.voice.file_id);
