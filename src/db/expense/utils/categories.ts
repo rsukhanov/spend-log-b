@@ -120,12 +120,12 @@ export const EXPENSE_SUB_CATEGORIES: Record<string, string> = {
   "RENT": "Аренда жилья",
   "MORTGAGE": "Ипотека / Кредит на жильё",
   "UTILITIES": "Коммунальные услуги",
-  "SUBSCRIPTIONS": "Подписки (Netflix, Spotify и т.д.)",
-  "INSURANCE": "Страхование (жилья, жизни)",
-  "REPAIRS": "Ремонт и обслуживание жилья",
+  "SUBSCRIPTIONS": "Подписки",
+  "INSURANCE": "Страхование",
+  "REPAIRS": "Ремонт и обслуживание",
 
   // --- ТРАНСПОРТ ---
-  "TAXI": "Такси / Поделиться поездкой",
+  "TAXI": "Такси",
   "PUBLIC_TRANSPORT": "Общественный транспорт",
   "FUEL": "Топливо / Зарядка авто",
   "CAR_MAINTENANCE": "Обслуживание и ремонт авто",
@@ -135,24 +135,24 @@ export const EXPENSE_SUB_CATEGORIES: Record<string, string> = {
   // --- ЕДА И ПИТАНИЕ ---
   "GROCERIES": "Продукты питания",
   "DINING_OUT": "Рестораны / Кафе",
-  "COFFEE_SNACKS": "Кофе / Снеки на ходу",
+  "COFFEE_SNACKS": "Кофе / Снеки",
   "FAST_FOOD": "Фастфуд",
 
   // --- ЗДОРОВЬЕ И УХОД ---
   "MEDICINES": "Лекарства / Аптека",
   "DOCTOR": "Приём врача / Медицинские услуги",
-  "PERSONAL_CARE_SERVICES": "Уход за собой (Салон, Барбершоп)",
+  "PERSONAL_CARE_SERVICES": "Уход за собой",
 
   // --- ЛИЧНЫЕ РАСХОДЫ И РАЗВИТИЕ ---
   "CLOTHING": "Одежда и обувь",
   "COSMETICS": "Косметика и гигиена",
   "PERSONAL_SHOPPING": "Личные покупки",
   "SELF_EDUCATION": "Самообразование / Курсы",
-  "SELF_DEVELOPMENT": "Саморазвитие / Книги",
+  "SELF_DEVELOPMENT": "Саморазвитие",
 
   // --- ДОСУГ И РАЗВЛЕЧЕНИЯ ---
   "MOVIES_CONCERTS": "Кино / Концерты / Театр",
-  "COMPUTER_GAMES": "Компьютерные игры / Игровой контент",
+  "COMPUTER_GAMES": "Компьютерные игры",
   "ALCOHOL": "Алкоголь",
   "SMOKING": "Курение / Вейпинг",
   "GAMBLING": "Азартные игры / Лотереи",
@@ -169,16 +169,16 @@ export const EXPENSE_SUB_CATEGORIES: Record<string, string> = {
   "LOAN": "Выплата кредитов / Долгов",
   "TAXES": "Налоги и сборы",
   "SAVINGS_INVESTMENTS": "Накопления / Инвестиции",
-  "BANK_FEES": "Банковские комиссии / Обслуживание счета",
+  "BANK_FEES": "Банковские переводы, комиссии",
 
   // --- СЕМЬЯ И БЛИЗКИЕ ---
   "CHILDREN": "Детские товары и расходы",
-  "EDUCATION": "Образование (школа, секции)",
-  "HOME_PETS": "Домашние животные / Товары для них",
+  "EDUCATION": "Образование / Секции",
+  "HOME_PETS": "Домашние животные",
   "DONATIONS_PRESENTS": "Подарки / Пожертвования",
 
   // --- НЕПРЕДВИДЕННЫЕ ---
-  "FORCED_PURCHASES": "Вынужденные покупки / Неотложка",
+  "FORCED_PURCHASES": "Вынужденные покупки",
   "EMOTIONAL_PURCHASES": "Эмоциональные / Спонтанные покупки",
   "OTHER": "Прочее / Неизвестно",
 };

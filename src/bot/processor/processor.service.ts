@@ -2,12 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { Expense } from '@prisma/client';
 import fetch from 'node-fetch';
 import { getSubCategoriesList } from 'src/db/expense/utils/categories';
+import { json } from 'stream/consumers';
 
 @Injectable()
 export class ProcessorService {
 
   private OPEN_ROUTERS_URL = process.env.OPEN_ROUTERS_URL!;
   private OPEN_ROUTERS_API_KEY = process.env.OPEN_ROUTERS_API_KEY!;
+
+  private OPEN_ROUTERS_AI_MODEL = process.env.OPEN_ROUTERS_AI_MODEL!;
 
   private OCR_URL = process.env.OCR_URL!;
   private OCR_API_KEY = process.env.OCR_API_KEY!;
@@ -47,7 +50,7 @@ export class ProcessorService {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      "model": "x-ai/grok-4-fast",
+      "model": this.OPEN_ROUTERS_AI_MODEL,
       messages: [ {
         role: "system",
         content: `
@@ -55,12 +58,12 @@ export class ProcessorService {
           Given a raw text from a receipt, voice note, user message or receipt image, extract structured transaction data.
 
           Rules:
-          1. Always return a **valid JSON array** of objects. 
+          1. Always return a **valid JSON array** of objects. Return only a array of objects or an error object. Never return some extra markers or text! 
 
           2. Each object must contain all required fields:
             - "amount_original" (number) — numeric amount. If cannot detect, set to "to_ask".
             - "currency_original" (string) — currency code (UAH, PLN, USD, EUR). If cannot detect, set to "to_ask".
-            - "date" (ISO 8601 string) — if no date is present, use today's: ${new Date().toISOString()}! If you can not extract some fields of he date use today's year, todays month and today's day!
+            - "date" (ISO 8601 string) — if no date is present, use today's: ${new Date().toISOString()}! If you can not extract day, use today's day. If you can not extract month - use todays month. If you can not extract year, use today's year! ${new Date().toISOString()} - it is today's date!
             - "merchant" (string) — merchant/store name. If unknown, set to "unknown".
             - "category" (string) — one of these categories ${this.subCategories}. If unknown, set to "OTHER".
 
@@ -83,6 +86,8 @@ export class ProcessorService {
           7. If you can split the extense and there are not clear currencies for all it parts, then return { error: "Не могу распознать валюту для каждой части этой большой траты! Отправьте эти траты по одной или с более четким указанием валют!"}.
 
           8. Do not try to extract category from merchant only, try to understand the purchase itself!
+
+          9. When you finish, return ONLY valid JSON (without markdown, explanations, or extra text).
         `,
       },
       {
@@ -105,14 +110,26 @@ export class ProcessorService {
 
     const content = result?.choices?.[0]?.message?.content;
 
+    if (!content) throw new Error("Сервис не вернула данные");
+
     try {
-      if (typeof content !== "string") {
-        throw new Error('Модель не вернула текст для парсинга');
-      }
-      return { data: JSON.parse(content)}
+      const data = JSON.parse(content);
+      return { data };
     } catch (e) {
-      throw new Error ("Модель вернула невалидный JSON");
-    } 
+      try{
+        let cleaned = content!.trim()
+          .replace(/^```(?:json)?/i, "")
+          .replace(/```$/i, "")
+          .replace(/^Here\s+is\s+the\s+JSON[:\s]*/i, "")
+          .trim();
+
+        const data = JSON.parse(cleaned);
+        return { data };
+      } catch (e) {
+        throw new Error("Модель вернула невалидный JSON");
+      }
+    }
+
   } catch (err) {
     return { error: err};
   } 
