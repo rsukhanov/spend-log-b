@@ -12,6 +12,6 @@ import { CurrencyShedulerService } from './currencySheduler.service';
   providers: [
     CurrencyService, 
     CurrencyShedulerService],
-  exports: [CurrencyService],
+  exports: [CurrencyService, CurrencyShedulerService],
 })
 export class CurrencyModule {}

@@ -80,6 +80,27 @@ export class ExpenseService {
         });
       }
     }
+  }
 
+  async updateExpensesWithOutPreferredCurrency(userId: string, preferred_currency: string){
+    const expenses = await this.prisma.expense.findMany({
+      where: { 
+        userId, 
+        amount_in_preferred_currency: undefined},
+    });
+    if (!expenses || expenses.length === 0) return;
+
+    for (const expense of expenses) {  
+      const convertedAmount = await this.currency.convertCurrency(
+        expense.amount_original,
+        expense.currency_original,
+        preferred_currency
+      );
+
+      await this.prisma.expense.update({
+        where: { id: expense.id },
+        data: { amount_in_preferred_currency: convertedAmount },
+      });
+    }
   }
 }

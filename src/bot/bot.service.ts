@@ -8,9 +8,10 @@ import { ExpenseService } from 'src/db/expense/expense.service';
 import { error } from 'console';
 import { text } from 'stream/consumers';
 import { SOURCE_TYPE } from '@prisma/client';
-import { getMainCategory } from 'src/db/expense/utils/categories';
+import { getMainCategory, CATEGORY_NAMES, EXPENSE_SUB_CATEGORIES } from 'src/db/expense/utils/categories';
 import { getErrorMessage } from 'src/general/error_utils';
 import { dateToStr } from 'src/general/format_utils';
+import {AVALIABLE_CURRENCIES} from 'src/db/currency/utils/allCurrencies';
 
 interface SessionData {
   expense: {
@@ -27,14 +28,14 @@ export interface MyContext extends TelegrafContext {
 @Update()
 @Injectable()
 export class BotService {
-  constructor(private processor: ProcessorService, private user: UserService, private expense: ExpenseService) {}
+  constructor(private processor: ProcessorService, private user: UserService, private expense: ExpenseService,) {}
   // - 📄 скриншот или документ банковских выписок
+  // - 📱 скриншоты 1 (одной) траты из банковского приложения
   private message = `
     Привет👋  Я SpendLog бот для учёта расходов! Скидывай мне:
 
     - 💬 текстовые сообщения с тратами
     - 📸 чеки (фото или pdf)
-    - 📱 скриншоты 1 (одной) траты из банковского приложения
     - 🎤 голосовые сообщения с тратами
 
 Пожалуйста старайтесь указывать валюту и сумму всегда, особенно когда в одном запросе присутсвует несколько трат!!!
@@ -80,8 +81,8 @@ export class BotService {
 `🗓️ Дата: ${dateToStr(expense.date)}
 💰 Сумма: ${expense.amount_original}
 💴 Валюта: ${expense.currency_original}
-✉️ Категория: ${expense.main_category}
-📩 Подкатегория: ${expense.sub_category}
+✉️ Категория: ${CATEGORY_NAMES[expense.main_category]}
+📩 Подкатегория: ${EXPENSE_SUB_CATEGORIES[expense.sub_category]}
 🛒 Магазин: ${expense.merchant}
         `, 
       {
@@ -133,13 +134,21 @@ export class BotService {
       await ctx.reply(`✅ Данные успешно распознаны!`);
       ctx.session.expense = { data: {} }
 
+      let isNotValidAllCurrencies: string | null = null;
+
       data.forEach(expense => {
         expense.source = source;
         expense.userId = userId;
-        expense.main_category = getMainCategory(expense.category)
-        expense.sub_category = expense.category
-        expense.category = undefined
+        expense.main_category = getMainCategory(expense.category);
+        expense.sub_category = expense.category;
+        expense.category = undefined;
+        if (!AVALIABLE_CURRENCIES.includes(expense.currency_original) && expense.currency_original !== "to_ask") 
+          isNotValidAllCurrencies = expense.currency_original;  
       })
+      if (isNotValidAllCurrencies) {
+        this.cancelTransaction(ctx, `⚠️ Ошибка, выявленная валюта ${isNotValidAllCurrencies} недоступна!`);
+        return;
+      }
       if (data.length > 1) {
         this.saveManyExpenses(ctx, data)
         return

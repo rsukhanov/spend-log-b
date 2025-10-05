@@ -31,7 +31,6 @@ export class CurrencyShedulerService {
     console.log('Running daily currency update task...');
     const rates = await this.getRates();
     const res = await this.currencyService.updateAllCurrencies(rates);
-    console.log(res);
     return res;
   }
 }

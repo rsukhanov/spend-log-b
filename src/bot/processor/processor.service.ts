@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Expense } from '@prisma/client';
-import { raw } from '@prisma/client/runtime/library';
 import fetch from 'node-fetch';
 import { getSubCategoriesList } from 'src/db/expense/utils/categories';
 
@@ -40,7 +39,7 @@ export class ProcessorService {
     }];
     }
     try {
-    
+
     const response = await fetch(this.OPEN_ROUTERS_URL, {
     method: "POST",
     headers: {
@@ -48,11 +47,11 @@ export class ProcessorService {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      "model": "x-ai/grok-4-fast:free",
+      "model": "x-ai/grok-4-fast",
       messages: [ {
         role: "system",
         content: `
-          You are a JSON extractor and financial categorizer. 
+          You are a JSON extractor and financial categorizer.
           Given a raw text from a receipt, voice note, user message or receipt image, extract structured transaction data.
 
           Rules:
@@ -61,7 +60,7 @@ export class ProcessorService {
           2. Each object must contain all required fields:
             - "amount_original" (number) — numeric amount. If cannot detect, set to "to_ask".
             - "currency_original" (string) — currency code (UAH, PLN, USD, EUR). If cannot detect, set to "to_ask".
-            - "date" (ISO 8601 string) — if no date is present, use today's: ${(new Date()).toISOString()}.
+            - "date" (ISO 8601 string) — if no date is present, use today's: ${new Date().toISOString()}! If you can not extract some fields of he date use today's year, todays month and today's day!
             - "merchant" (string) — merchant/store name. If unknown, set to "unknown".
             - "category" (string) — one of these categories ${this.subCategories}. If unknown, set to "OTHER".
 

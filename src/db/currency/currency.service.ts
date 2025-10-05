@@ -79,4 +79,5 @@ export class CurrencyService {
 
     return await this.getAllRates();
   }
+
 }

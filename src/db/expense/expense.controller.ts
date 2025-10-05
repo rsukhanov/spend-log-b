@@ -7,9 +7,10 @@ import path from 'path';
 export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
 
-  @Get(':id')
-  async getById(@Param('id') id: string) {
-    return await this.expenseService.getUserExpenses(id);
+  @Get(':userId/:preferred_currency')
+  async getById(@Param('userId') userId: string, @Param('preferred_currency') preferred_currency: string) {
+    await this.expenseService.updateExpensesWithOutPreferredCurrency(userId, preferred_currency);
+    return await this.expenseService.getUserExpenses(userId);
   }
 
   @Patch(':id')
