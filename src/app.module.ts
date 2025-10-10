@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { BotModule } from './bot/bot.module';
@@ -11,8 +11,10 @@ import { ExpenseModule } from './db/expense/expense.module';
 import { session } from 'telegraf';
 import { WebappModule } from './webapp/webapp.module';
 import { CurrencyModule } from './db/currency/currency.module';
+import { JwtModule } from '@nestjs/jwt';
+import { MainMiddleware } from './general/middleware/main.middleware';
 
-
+const JWT_SECRET = process.env.JWT_SECRET!
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,6 +23,14 @@ import { CurrencyModule } from './db/currency/currency.module';
     TelegrafModule.forRoot({
       token: process.env.TELEGRAM_BOT_TOKEN || '',
       middlewares: [session()],
+    }),
+    JwtModule.register({
+      secret: JWT_SECRET,
+      signOptions: { 
+        expiresIn: '24h',
+        algorithm: 'HS256'
+      },
+      global: true,
     }),
     BotModule,
     PrismaModule,
@@ -32,4 +42,11 @@ import { CurrencyModule } from './db/currency/currency.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule{
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(MainMiddleware)
+      .exclude({path: 'webapp/verify', method: RequestMethod.POST})
+      .forRoutes('*');
+  }
+}
