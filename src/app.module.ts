@@ -14,6 +14,7 @@ import { CurrencyModule } from './db/currency/currency.module';
 import { JwtModule } from '@nestjs/jwt';
 import { MainMiddleware } from './general/middleware/main.middleware';
 import { PingController } from './ping.controller';
+import { LoggerMiddleware } from './general/middleware/logger.middleware';
 
 const JWT_SECRET = process.env.JWT_SECRET!
 @Module({
@@ -54,6 +55,9 @@ const JWT_SECRET = process.env.JWT_SECRET!
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('*');
     consumer
       .apply(MainMiddleware)
       .forRoutes(
