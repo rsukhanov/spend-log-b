@@ -15,7 +15,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { MainMiddleware } from './general/middleware/main.middleware';
 import { PingController } from './ping.controller';
 
-
 const JWT_SECRET = process.env.JWT_SECRET!
 @Module({
   imports: [
