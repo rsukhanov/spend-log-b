@@ -44,14 +44,14 @@ const JWT_SECRET = process.env.JWT_SECRET!
   controllers: [PingController],
   providers: [],
 })
-export class AppModule implements NestModule{
+export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(MainMiddleware)
       .forRoutes(
-        { path: 'expenses*', method: RequestMethod.ALL },
-        { path: 'user*', method: RequestMethod.ALL },
-        { path: 'currency*', method: RequestMethod.ALL },
+        { path: 'expenses/*path', method: RequestMethod.ALL },
+        { path: 'user/*path', method: RequestMethod.ALL },
+        { path: 'currency/*path', method: RequestMethod.ALL },
       );
   }
 }
