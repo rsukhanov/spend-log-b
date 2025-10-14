@@ -13,6 +13,8 @@ import { WebappModule } from './webapp/webapp.module';
 import { CurrencyModule } from './db/currency/currency.module';
 import { JwtModule } from '@nestjs/jwt';
 import { MainMiddleware } from './general/middleware/main.middleware';
+import { PingController } from './ping.controller';
+
 
 const JWT_SECRET = process.env.JWT_SECRET!
 @Module({
@@ -39,14 +41,17 @@ const JWT_SECRET = process.env.JWT_SECRET!
     WebappModule,
     CurrencyModule,
   ],
-  controllers: [],
+  controllers: [PingController],
   providers: [],
 })
 export class AppModule implements NestModule{
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(MainMiddleware)
-      .exclude({path: 'webapp/verify', method: RequestMethod.POST})
+      .exclude(
+        {path: 'webapp/verify', method: RequestMethod.POST}, 
+        { path: 'ping', method: RequestMethod.ALL },
+      )
       .forRoutes('*');
   }
 }
