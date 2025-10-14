@@ -48,10 +48,10 @@ export class AppModule implements NestModule{
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(MainMiddleware)
-      .exclude(
-        {path: 'webapp/verify', method: RequestMethod.POST}, 
-        { path: 'ping', method: RequestMethod.ALL },
-      )
-      .forRoutes('*');
+      .forRoutes(
+        { path: 'expenses*', method: RequestMethod.ALL },
+        { path: 'user*', method: RequestMethod.ALL },
+        { path: 'currency*', method: RequestMethod.ALL },
+      );
   }
 }
