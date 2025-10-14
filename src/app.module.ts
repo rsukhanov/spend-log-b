@@ -21,10 +21,19 @@ const JWT_SECRET = process.env.JWT_SECRET!
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-    }),
-    TelegrafModule.forRoot({
-      token: process.env.TELEGRAM_BOT_TOKEN || '',
-      middlewares: [session()],
+    }), 
+    TelegrafModule.forRootAsync({
+      useFactory: () => ({
+        token: process.env.TELEGRAM_BOT_TOKEN!,
+        middlewares: [session()],
+        launchOptions: {
+          dropPendingUpdates: true,
+          webhook: {
+            domain: process.env.RENDER_EXTERNAL_URL!,
+            path: '/telegraf',
+          },
+        },
+      }),
     }),
     JwtModule.register({
       secret: JWT_SECRET,
