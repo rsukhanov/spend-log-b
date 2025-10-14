@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Update, Ctx, Start, Help, On, Command } from 'nestjs-telegraf';
 import { Context as TelegrafContext } from "telegraf";
 import fetch from 'node-fetch';
 import { ProcessorService } from 'src/bot/processor/processor.service';
@@ -25,7 +24,6 @@ export interface MyContext extends TelegrafContext {
 
 
 
-@Update()
 @Injectable()
 export class BotService {
   constructor(private processor: ProcessorService, private user: UserService, private expense: ExpenseService,) {}
@@ -44,8 +42,7 @@ export class BotService {
 
  Команда /clear очистит твои траты!
   `;
-  @Start()
-  async start(@Ctx() ctx: MyContext) {
+  async start(ctx: MyContext) {
     const userId = String(ctx.from?.id);
     const isRegistered = await this.user.isRegistered(userId);
 
@@ -70,8 +67,7 @@ export class BotService {
     ctx.session.expense = {}
   }
 
-  @Help()
-  async help(@Ctx() ctx: MyContext) {
+  async help(ctx: MyContext) {
     await ctx.reply(this.message);
   }
 
@@ -94,8 +90,8 @@ export class BotService {
       })
     })
   }
-  @Command('clear')
-  async clear(@Ctx() ctx: MyContext) {
+
+  async clear(ctx: MyContext) {
     const userId = String(ctx.from?.id);
 
     try {
@@ -221,8 +217,8 @@ export class BotService {
     await this.showExpenseSuccessMessage(ctx, expenses);
   }
 
-  @On('callback_query')
-  async onCallback(@Ctx() ctx: MyContext) {
+  
+  async onCallback(ctx: MyContext) {
     const callback = ctx.callbackQuery;
 
     if (!("data" in callback!)) {
@@ -260,9 +256,7 @@ export class BotService {
     this.checkFieldsAndSave(ctx)
 }
 
-
-  @On('message')
-  async onMessage(@Ctx() ctx: MyContext) {
+  async onMessage(ctx: MyContext) {
     const msg = ctx.message;
     if (!msg) return;
 
