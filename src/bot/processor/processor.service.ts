@@ -106,7 +106,9 @@ export class ProcessorService {
       [key: string]: any;
     }
 
+    console.log(response)
     const result = await response.json() as OpenRouterResponse;
+    console.log(result)
 
     const content = result?.choices?.[0]?.message?.content;
 

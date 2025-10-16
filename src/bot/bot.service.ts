@@ -167,6 +167,7 @@ export class BotService {
 
   private async extractJsonFromText(ctx: SimplifiedContext, text: string, source: SOURCE_TYPE, image_url?: string) {
     const result = await this.processor.processText(text, image_url);
+    console.log(result)
     if (result.error) {
       this.cancelTransaction(ctx, `⚠️ Ошибка главного сервиса по трансформации данных! ${result.error}`);
       return;
@@ -237,7 +238,7 @@ export class BotService {
         });
         return;
       }
-      
+
     }
     
     if (expense.currency_original && expense.amount_original && expense) {
