@@ -1,6 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TelegrafModule } from 'nestjs-telegraf';
 import { BotModule } from './bot/bot.module';
 import { ProcessorService } from './bot/processor/processor.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -8,13 +7,13 @@ import { UserService } from './db/user/user.service';
 import { ExpenseService } from './db/expense/expense.service';
 import { UserModule } from './db/user/user.module';
 import { ExpenseModule } from './db/expense/expense.module';
-import { session } from 'telegraf';
 import { WebappModule } from './webapp/webapp.module';
 import { CurrencyModule } from './db/currency/currency.module';
 import { JwtModule } from '@nestjs/jwt';
 import { MainMiddleware } from './general/middleware/main.middleware';
 import { PingController } from './ping.controller';
 import { LoggerMiddleware } from './general/middleware/logger.middleware';
+import { TelegrafWebhookController } from './telegraf-webhook.controller';
 
 const JWT_SECRET = process.env.JWT_SECRET!
 @Module({
@@ -22,19 +21,6 @@ const JWT_SECRET = process.env.JWT_SECRET!
     ConfigModule.forRoot({
       isGlobal: true,
     }), 
-    TelegrafModule.forRootAsync({
-      useFactory: () => ({
-        token: process.env.TELEGRAM_BOT_TOKEN!,
-        middlewares: [session()],
-        launchOptions: {
-          dropPendingUpdates: true,
-          webhook: {
-            domain: process.env.RENDER_EXTERNAL_URL!,
-            path: '/telegraf',
-          },
-        },
-      }),
-    }),
     JwtModule.register({
       secret: JWT_SECRET,
       signOptions: { 
@@ -50,16 +36,18 @@ const JWT_SECRET = process.env.JWT_SECRET!
     WebappModule,
     CurrencyModule,
   ],
-  controllers: [PingController],
+  controllers: [PingController, TelegrafWebhookController],
   providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(LoggerMiddleware)
+      .exclude('telegraf')
       .forRoutes('*');
     consumer
       .apply(MainMiddleware)
+      .exclude('telegraf')
       .forRoutes(
         { path: 'expenses/*path', method: RequestMethod.ALL },
         { path: 'user/*path', method: RequestMethod.ALL },
