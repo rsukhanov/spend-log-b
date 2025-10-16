@@ -5,8 +5,8 @@ import { UserService } from 'src/db/user/user.service';
 import { ExpenseService } from 'src/db/expense/expense.service';
 import { SOURCE_TYPE } from '@prisma/client';
 import { getMainCategory, CATEGORY_NAMES, EXPENSE_SUB_CATEGORIES } from 'src/db/expense/utils/categories';
-import { getErrorMessage } from 'src/general/error_utils';
-import { dateToStr } from 'src/general/format_utils';
+import { getErrorMessage } from 'src/general/utils/error_utils';
+import { dateToStr } from 'src/general/utils/format_utils';
 import { AVALIABLE_CURRENCIES } from 'src/db/currency/utils/allCurrencies';
 
 interface SessionData {
@@ -167,7 +167,6 @@ export class BotService {
 
   private async extractJsonFromText(ctx: SimplifiedContext, text: string, source: SOURCE_TYPE, image_url?: string) {
     const result = await this.processor.processText(text, image_url);
-    console.log(result)
     if (result.error) {
       this.cancelTransaction(ctx, `⚠️ Ошибка главного сервиса по трансформации данных! ${result.error}`);
       return;
@@ -368,8 +367,6 @@ export class BotService {
   }
 
   async handleUpdate(update: any) {
-    console.log('🔄 Processing update:', update.update_id);
-    
     try {
       if (update.message) {
         const text = update.message.text;

@@ -9,7 +9,6 @@ export class TelegrafWebhookController {
 
   @Post('telegraf')
   async handleWebhook(@Body() update: any, @Res() res: Response) {
-    console.log('📨 Telegram webhook received');
     
     try {
       await this.botService.handleUpdate(update);

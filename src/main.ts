@@ -11,6 +11,8 @@ async function bootstrap() {
   
   app.enableCors({
     origin: [
+      'https://web.telegram.org',
+      'https://telegram.org',
       process.env.FRONTEND_URL!,
       "https://spend-log-green.vercel.app",
     ],

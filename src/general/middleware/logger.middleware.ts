@@ -16,10 +16,8 @@ export class LoggerMiddleware implements NestMiddleware {
     const startTime = Date.now();
     const requestId = this.generateRequestId();
     
-    // Добавляем request ID к объекту запроса для дальнейшего отслеживания
     (req as any).requestId = requestId;
 
-    // Подробный лог входящего запроса
     this.logger.log(
       `🔵 [${requestId}] ${method} ${originalUrl}`,
       {
@@ -38,7 +36,6 @@ export class LoggerMiddleware implements NestMiddleware {
       }
     );
 
-    // Перехватываем ответ
     res.on('finish', () => {
       const { statusCode } = res;
       const contentLength = res.get('content-length') || '0';
@@ -46,7 +43,6 @@ export class LoggerMiddleware implements NestMiddleware {
       const location = res.get('Location') || 'N/A';
       const setCookie = res.get('Set-Cookie') ? '[SET]' : '[NONE]';
       
-      // Определяем уровень логирования и эмодзи по статус коду
       const { logLevel, emoji } = this.getLogLevelAndEmoji(statusCode);
       
       this.logger[logLevel](
@@ -61,9 +57,7 @@ export class LoggerMiddleware implements NestMiddleware {
           performance: this.getPerformanceCategory(responseTime),
           timestamp: new Date().toISOString(),
         }
-      );
-
-      // Дополнительное предупреждение для медленных запросов
+      );      
       if (responseTime > 5000) {
         this.logger.warn(
           `🐌 [${requestId}] SLOW REQUEST: ${method} ${originalUrl} took ${responseTime}ms`
@@ -71,7 +65,6 @@ export class LoggerMiddleware implements NestMiddleware {
       }
     });
 
-    // Обработка ошибок соединения
     res.on('close', () => {
       if (!res.headersSent) {
         this.logger.warn(
@@ -101,10 +94,8 @@ export class LoggerMiddleware implements NestMiddleware {
     if (!body) return 'EMPTY';
     
     try {
-      // Клонируем объект для безопасного изменения
       const sanitized = JSON.parse(JSON.stringify(body));
       
-      // Убираем чувствительные данные
       const sensitiveFields = [
         'password', 'token', 'rawInitData', 'auth-token', 
         'authorization', 'secret', 'key', 'apiKey'
