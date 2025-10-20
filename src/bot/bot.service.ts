@@ -12,6 +12,7 @@ import { AVALIABLE_CURRENCIES } from 'src/db/currency/utils/allCurrencies';
 interface SessionData {
   expense: {
     data?: any;
+    amountMessageId?: number;
   };
 }
 
@@ -63,7 +64,7 @@ export class BotService {
     if (!chatId) return;
 
     try {
-      await this.bot.telegram.sendMessage(chatId, text, options);
+      return await this.bot.telegram.sendMessage(chatId, text, options);
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -119,6 +120,7 @@ export class BotService {
 
   async help(update: any) {
     const ctx = this.createContext(update);
+    await this.sendMessage(ctx, 'DEV MODE!');
     await this.sendMessage(ctx, this.message);
   }
 
@@ -227,14 +229,16 @@ export class BotService {
         return;
       }
 
-       if (expense.amount_original === "to_ask") {
-        await this.sendMessage(ctx, "❓ Введи сумму вручную:", {
+       
+      if (expense.amount_original === "to_ask") {
+        const message = await this.bot.telegram.sendMessage(ctx.chat.id, "❓ Введи сумму вручную:", {
           reply_markup: {
             inline_keyboard: [
               [{ text: "Cancel ❓", callback_data: "CANCEL" }]
             ]
           }
         });
+        ctx.session.expense.amountMessageId = message.message_id;
         return;
       }
 
@@ -297,6 +301,8 @@ export class BotService {
     }
 
     if (callbackData === "CANCEL") {
+      // Удаляем кнопки при отмене
+      await this.editMessageReplyMarkup(ctx, callback.message.message_id, undefined);
       this.cancelTransaction(ctx, "❌ Добавление траты отменено");
       return;
     }
@@ -305,6 +311,7 @@ export class BotService {
 
     if (callbackData.startsWith("currency:")) {
       const currency = callbackData.split(":")[1];
+      await this.editMessageReplyMarkup(ctx, callback.message.message_id, undefined);
       await this.sendMessage(ctx, `💱 Валюта указана: ${currency}`);
       ctx.session.expense.data.currency_original = currency;
     }
@@ -335,7 +342,12 @@ export class BotService {
           });
           return;
         }
+        if (ctx.session.expense.amountMessageId) {
+          await this.editMessageReplyMarkup(ctx, ctx.session.expense.amountMessageId, undefined);
+          delete ctx.session.expense.amountMessageId;
+        }
         ctx.session.expense.data.amount_original = amount;
+        await this.sendMessage(ctx, `💰 Сумма траты установлена: ${amount} ${ctx.session.expense.data.currency_original}`);
         this.checkFieldsAndSave(ctx);
         return;
       }
