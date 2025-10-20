@@ -13,10 +13,15 @@ export class ExpenseService {
     });
   }
 
-  async createManyExpenses(dto: ExpenseDto[]){
-    return await this.prisma.expense.createMany({
-      data: dto
-    })
+  async createManyExpenses(dto: ExpenseDto[]) {
+    const createdExpenses: any[] = [];
+    
+    for (const expense of dto) {
+      const created = await this.createExpense(expense);
+      createdExpenses.push(created);
+    }
+    
+    return createdExpenses;
   }
 
   async changeExpense(id: string, dto: Partial<ExpenseDto>) {

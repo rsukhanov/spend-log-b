@@ -202,7 +202,18 @@ export class BotService {
     }
     
     if (data.length > 1) {
-      this.saveManyExpenses(ctx, data);
+      let isSplitError = false;
+      data.forEach(expense => {
+        if (expense.currency_original === "to_ask" || expense.amount_original === "to_ask") {
+          isSplitError = true;
+          return;
+        }
+      });
+      if (isSplitError) {
+        this.cancelTransaction(ctx, `⚠️ Ошибка при добавление траты. При разделении большой траты на несколько, все части должны иметь чётко указанную сумму и валюту!`);
+        return;
+      }
+      await this.saveManyExpenses(ctx, data);
       return;
     }
     
@@ -266,16 +277,19 @@ export class BotService {
 
   private async saveManyExpenses(ctx: SimplifiedContext, expenses: any[]) {
     ctx.session.expense = {};
-    
+
     try {
-      await this.expense.createManyExpenses(expenses);
+      const createdExpenses = await this.expense.createManyExpenses(expenses);
+      if(!createdExpenses || createdExpenses.length === 0 || createdExpenses.length !== expenses.length) {
+        throw new Error("Не удалось сохранить траты");
+      }
+
+      await this.sendMessage(ctx, `✅ Трата была разделена на несколько, и успешно сохранена!`);
+      await this.showExpenseSuccessMessage(ctx, createdExpenses);
     } catch (e) {
       await this.sendMessage(ctx, `⚠️ Ошибка при сохранении информации! Попробуйте ввести более честкую информацию. (ошибка может быть связаня с мультивалютностью в однои запросе) ${getErrorMessage(e, '')}`);
       return;
     }  
-    
-    await this.sendMessage(ctx, `✅ Трата была разделена на несколько, и успешно сохранена!`);
-    await this.showExpenseSuccessMessage(ctx, expenses);
   }
 
   async onCallback(update: any) {
