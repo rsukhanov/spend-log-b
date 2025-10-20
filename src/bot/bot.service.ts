@@ -120,7 +120,6 @@ export class BotService {
 
   async help(update: any) {
     const ctx = this.createContext(update);
-    await this.sendMessage(ctx, 'DEV MODE!');
     await this.sendMessage(ctx, this.message);
   }
 
