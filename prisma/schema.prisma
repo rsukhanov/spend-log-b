@@ -44,6 +44,7 @@ enum EXPENSE_MAIN_CATEGORY {
   FINANCIAL       // кредиты, налоги, сбережения
   FAMILY_PETS     // дети, семья, животные
   OTHER           // всё, что не вошло
+  SPORT
 }
 
 enum EXPENSE_SUB_CATEGORY {
@@ -54,6 +55,7 @@ enum EXPENSE_SUB_CATEGORY {
   SUBSCRIPTIONS
   INSURANCE
   REPAIRS
+  LAUNDRY
 
   // TRANSPORT
   TAXI
@@ -112,6 +114,11 @@ enum EXPENSE_SUB_CATEGORY {
   FORCED_PURCHASES
   EMOTIONAL_PURCHASES
   OTHER
+
+  // SPORT
+  SPORTS_EQUIPMENT
+  GYM_MEMBERSHIP
+  SPORTS_EVENTS
 }
 
 
