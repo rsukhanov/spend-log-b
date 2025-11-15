@@ -31,7 +31,14 @@ export class ExpenseService {
     })
   }
 
-  async isExistExpense(userId: string){
+  async isThisExpenseExist(userId: string, expenseId: string){
+    const expense = await this.prisma.expense.findFirst({
+      where: { userId: userId, id: expenseId },
+    })
+    return !!expense;
+  }
+
+  async isExistExpenses(userId: string){
     const expense = await this.prisma.expense.findFirst({
       where: { userId: userId },
     })

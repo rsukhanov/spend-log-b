@@ -108,7 +108,7 @@ export class BotService {
         username: ctx.from?.username,
       });
     } else {
-      const isExistExpenses = await this.expense.isExistExpense(userId);
+      const isExistExpenses = await this.expense.isExistExpenses(userId);
       if (isExistExpenses) {
         await this.sendMessage(ctx, `\nРад тебя видеть снова!😊 Я востановил твои прошлые траты! Все их можно посмотреть в веб-приложении!\nЕсли желаешь начать вести учет заново, напиши \n/clear (все прошлые траты будут удалены)`);  
       } else {
@@ -128,7 +128,7 @@ export class BotService {
     const userId = String(ctx.from?.id);
 
     try {
-      const isExistExpenses = await this.expense.isExistExpense(userId);
+      const isExistExpenses = await this.expense.isExistExpenses(userId);
       if (!isExistExpenses) {
         await this.sendMessage(ctx, '✅ У тебя нет прошлых трат для удаления, можно начинать вести новый учет!');
         return;
@@ -304,9 +304,15 @@ export class BotService {
     if (callbackData.startsWith("delete:")) {
       const expenseId = callbackData.split(":")[1];
       try {
-        const res = await this.expense.deleteExpense(expenseId);
-        await this.editMessageReplyMarkup(ctx, callback.message.message_id, undefined);
-        await this.sendMessage(ctx, `🗑 Трата ${dateToStr(res.date)} числа на сумму ${res.amount_original} ${res.currency_original} была успешно удалена!`);
+        const exists = await this.expense.isThisExpenseExist(String(ctx.from?.id), expenseId);
+        if (!exists) {
+          await this.sendMessage(ctx, `⚠️ Ошибка при удалении: Трата не найдена или уже была удалена!`);
+          await this.editMessageReplyMarkup(ctx, callback.message.message_id, undefined);
+        } else {
+          const res = await this.expense.deleteExpense(expenseId);
+          await this.editMessageReplyMarkup(ctx, callback.message.message_id, undefined);
+          await this.sendMessage(ctx, `🗑 Трата ${dateToStr(res.date)} числа на сумму ${res.amount_original} ${res.currency_original} была успешно удалена!`);  
+        }
       } catch (e) {
         await this.sendMessage(ctx, `⚠️ Ошибка при удалении: ${getErrorMessage(e, '')}`);
       }
