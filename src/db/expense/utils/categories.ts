@@ -6,7 +6,8 @@ const expenses_categories: Record<string, string[]> = {
       'UTILITIES',
       "SUBSCRIPTIONS",
       "INSURANCE",
-      "REPAIRS"
+      "REPAIRS",
+      "LAUNDRY"
    ],
 
   // такси, транспорт, авто
@@ -82,6 +83,12 @@ const expenses_categories: Record<string, string[]> = {
     "FORCED_PURCHASES",
     "EMOTIONAL_PURCHASES",
     "OTHER",
+  ],
+
+  SPORT: [
+    "SPORTS_EQUIPMENT",
+    "GYM_MEMBERSHIP",
+    "SPORTS_EVENTS",
   ]
 }
 
@@ -112,7 +119,8 @@ export const CATEGORY_NAMES: Record<string, string> = {
   TRAVEL: 'Путешествия',
   FINANCIAL: 'Финансы',
   FAMILY_PETS: 'Семья',
-  OTHER: 'Другое'
+  OTHER: 'Другое',
+  SPORT: 'Спорт',
 }
 
 export const EXPENSE_SUB_CATEGORIES: Record<string, string> = {
@@ -123,6 +131,7 @@ export const EXPENSE_SUB_CATEGORIES: Record<string, string> = {
   "SUBSCRIPTIONS": "Подписки",
   "INSURANCE": "Страхование",
   "REPAIRS": "Ремонт и обслуживание",
+  "LAUNDRY": "Стирка",
 
   // --- ТРАНСПОРТ ---
   "TAXI": "Такси",
@@ -181,4 +190,9 @@ export const EXPENSE_SUB_CATEGORIES: Record<string, string> = {
   "FORCED_PURCHASES": "Вынужденные покупки",
   "EMOTIONAL_PURCHASES": "Эмоциональные / Спонтанные покупки",
   "OTHER": "Прочее / Неизвестно",
+
+  // --- СПОРТ ---
+  "SPORTS_EQUIPMENT": "Спортивный инвентарь и добавки",
+  "GYM_MEMBERSHIP": "Абонемент в спортзал",
+  "SPORTS_EVENTS": "Спортивные мероприятия",
 };
