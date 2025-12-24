@@ -1,8 +1,8 @@
 {
   "name": "spendlog",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "version": "1.0.0",
+  "description": "The backend part of the Spendlog application created with NestJS and TypeScript. Created by Roman Sukhanov.",
+  "author": "Roman Sukhanov",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

@@ -193,8 +193,6 @@ export class ProcessorService {
 
     const { id } = await createResp.json() as { id?: string };
     if (!id) throw new Error("Не удалось создать задачу Assembly!");
-
-    const transcriptId = id;
     
     let result;
     while (true) {
