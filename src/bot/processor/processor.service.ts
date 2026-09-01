@@ -108,9 +108,14 @@ export class ProcessorService {
 
     const result = await response.json() as OpenRouterResponse;
 
+    if (result.error) {
+      console.error("[OpenRouter Error]:", result.error);
+      throw new Error(`Ошибка OpenRouter: ${result.error.message || JSON.stringify(result.error)}`);
+    }
+
     const content = result?.choices?.[0]?.message?.content;
 
-    if (!content) throw new Error("Сервис не вернула данные");
+    if (!content) throw new Error("Сервис не вернул данные: пустой ответ");
 
     try {
       const data = JSON.parse(content);
